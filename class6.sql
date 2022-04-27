@@ -21,41 +21,77 @@ WHERE NOT EXISTS (SELECT *
 
 # EJERCICIO 3 Find customers that rented only one film.
 SELECT c.first_name, c.last_name
-FROM customers c
-WHERE NOT EXISTS (SELECT * 
-    FROM film_actor fa
-    WHERE a.actor_id = fa.actor_id);
-
-SELECT c.first_name, c.last_name
-FROM customer c
-WHERE EXISTS 
-      (SELECT 1 FROM payment p 
-       WHERE c.customer_id = p.customer_id);
-
-select *
-from 
-  ( select *, 
-           count(1) over (partition by p.customer_id) as occurs
-    from payment p
-  ) AS c
-where occurs = 1 ;
+FROM customer c 
+WHERE 1 = (SELECT COUNT(*) FROM rental r WHERE c.customer_id = r.customer_id);
 
 
 
 # EJERCICIO 4 Find customers that rented more than one film
+SELECT c.first_name, c.last_name
+FROM customer c 
+WHERE 1 < (SELECT COUNT(*) FROM rental r WHERE c.customer_id = r.customer_id);
 
 
 
 # EJERCICIO 5 List the actors that acted in 'BETRAYED REAR' or in 'CATCH AMISTAD'.
+SELECT a.first_name, a.last_name
+FROM actor a
+WHERE actor_id IN (SELECT actor_id FROM film_actor fa WHERE fa.film_id IN (SELECT f.film_id FROM film f WHERE f.title LIKE "BETRAYED REAR" OR f.title LIKE "CATCH AMISTAD"));
 
 
 
 # EJERCICIO 6 List the actors that acted in 'BETRAYED REAR' but not in 'CATCH AMISTAD'.
+SELECT a.first_name, a.last_name
+FROM actor a
+WHERE actor_id IN (
+  SELECT actor_id 
+  FROM film_actor fa 
+  WHERE fa.film_id IN (
+    SELECT f1.film_id 
+    FROM film f1 
+    WHERE f1.title 
+    LIKE 'BETRAYED REAR' 
+    AND f1.film_id NOT IN (
+      SELECT f2.film_id 
+      FROM film f2 
+      WHERE f2.title 
+      LIKE 'CATCH AMISTAD')));
+
 
 
 
 # EJERCICIO 7 List the actors that acted in both 'BETRAYED REAR' and 'CATCH AMISTAD'.
+SELECT a.first_name, a.last_name
+FROM actor a
+WHERE actor_id IN (
+  SELECT actor_id 
+  FROM film_actor fa 
+  WHERE fa.film_id IN (
+    SELECT f1.film_id 
+    FROM film f1 
+    WHERE f1.title 
+    LIKE 'BETRAYED REAR' 
+    AND f1.film_id IN (
+      SELECT f2.film_id 
+      FROM film f2 
+      WHERE f2.title 
+      LIKE 'CATCH AMISTAD')));
 
 
 
-# EJERCICIO 8 List all the actors that didn't work in 'BETRAYED REAR' or 'CATCH AMISTAD'.
+# EJERCICIO 8 List all the actors that didnt work in 'BETRAYED REAR' or 'CATCH AMISTAD'.
+SELECT a.first_name, a.last_name
+FROM actor a
+WHERE actor_id NOT IN (
+  SELECT actor_id 
+  FROM film_actor fa 
+  WHERE fa.film_id IN (
+    SELECT f1.film_id 
+    FROM film f1 
+    WHERE f1.title 
+    LIKE 'BETRAYED REAR' 
+    OR f1.film_id IN (
+      SELECT f2.film_id 
+      FROM film f2 
+      WHERE f2.title 
+      LIKE 'CATCH AMISTAD')));
