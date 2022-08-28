@@ -76,13 +76,13 @@ INSERT INTO
     )
 VALUES (
         1,
-        'Carbel',
-        'Matias',
+        'Ferreras',
+        'Manuel',
         'a',
         NULL,
         '1',
         1002,
-        'Worker'
+        'Programmer'
     );
 
 /*Column 'email' cannot be null. esto es debido a la constraint que tiene el campo email
